@@ -4,7 +4,9 @@ use std::collections::HashMap;
 use std::collections::HashSet;
 use std::cmp::max;
 use std::ptr::null;
-use rustlearn::{test_in_lib, Node};
+use rustlearn::{test_in_lib, Node, Messanger};
+use std::ops::Deref;
+use std::cell::RefCell;
 
 pub struct Point<T>{
     x:T,
@@ -36,6 +38,7 @@ pub trait Summary{
 pub trait Display{
     fn Display(&self) -> String;
 }
+
 pub fn notify(item: impl Summary + Display){
     item.Summarize();
 }
@@ -57,6 +60,7 @@ fn longest<'a>(s1: &'a str, s2:&'a str) -> String{
         return String::from("1456");
     }
 }
+
 
 pub fn three_sum(nums: Vec<i32>) -> Vec<Vec<i32>> {
     let mut ans = Vec::new();
@@ -179,7 +183,27 @@ pub struct ListNode {
   pub next: Option<Box<ListNode>>
 }
 
+pub struct TreeNode{
+    pub val:i32,
+    pub left: Option<Box<TreeNode>>,
+    pub right: Option<Box<TreeNode>>
+}
+
 struct MyBox<T>(T);
+
+impl <T> Deref for MyBox<T>{
+    type Target = T;
+
+    fn deref(&self) -> &Self::Target {
+        return &self.0;
+    }
+}
+
+impl<T> MyBox<T> {
+    fn new(x: T) -> MyBox<T> {
+        MyBox(x)
+    }
+}
 
 impl ListNode {
   #[inline]
@@ -191,39 +215,46 @@ impl ListNode {
   }
 }
 
-pub fn reverse_list(head: Option<Box<ListNode>>) -> Option<Box<ListNode>> {
-    let mut prev: Option<Box<ListNode>> = None;
-    let mut curr = head;
+// pub fn reverse_list(head: Option<Box<ListNode>>) -> Option<Box<ListNode>> {
+//     let mut prev: Option<Box<ListNode>> = None;
+//     let mut curr = head;
+//
+//     while let Some(mut boxed_node) = curr {
+//         let mut next = boxed_node.next.take();
+//         boxed_node.next = prev.take();
+//         prev = Some(boxed_node);
+//         curr = next.take();
+//     }
+//     prev
+// }
 
-    // while let Some(mut boxed_node) = curr {
-    //     curr.unwrap().next
-    //     let mut next = boxed_node.next.take();
-    //     boxed_node.next = prev.take();
-    //     prev = Some(boxed_node);
-    //     curr = next.take();
-    // }
-    // curr.is_some()
+struct MockMessanger{
+    sent_messages: RefCell<Vec<String>>
+}
 
-    while curr.is_some(){
-        let mut next = curr.unwrap().next;
-        curr.unwrap().next = prev;
-        prev = curr;
-        curr = next;
+impl MockMessanger{
+    fn new() -> MockMessanger{
+        return MockMessanger{
+            sent_messages: RefCell::new(vec![])
+        }
+    }
+}
+
+impl Messanger for MockMessanger{
+    fn send(&self, msg: &str) {
+        self.sent_messages.borrow_mut().push(String::from(msg))
     }
 
-    prev
+    fn test() {
+        println!("OK");
+    }
 }
 
 fn main() {
-    let mut head = ListNode::new(1);
-    head.next = Option::from(Box::new(ListNode::new(2)));
-    let next_node = head.next;
-    let next_node2 = head.next.take();
-    let t = match next_node {
-        Some(Box) => 1,
-        None => 2,
-    };
 
+    let a = 1;
+    let b = &a;
+    let c = &a;
 
 
 }
